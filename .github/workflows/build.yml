@@ -1,0 +1,86 @@
+name: Build NOCTIS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            cmake_args: '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
+            artifact: NOCTIS-macOS
+          - os: windows-latest
+            cmake_args: ''
+            artifact: NOCTIS-Windows
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        shell: bash
+        run: |
+          if [ -n "${{ matrix.cmake_args }}" ]; then
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "${{ matrix.cmake_args }}"
+          else
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          fi
+
+      - name: Build
+        run: cmake --build build --config Release -j
+
+      - name: Validate Audio Unit with auval (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          AU_PATH=$(find build/NOCTIS_artefacts -name "*.component" | head -n 1)
+          echo "Validating: $AU_PATH"
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "$AU_PATH" ~/Library/Audio/Plug-Ins/Components/
+          auval -v aufx Noct Hdrm 2>&1 | tee auval.log
+          if grep -q "couldn't be opened\|FATAL ERROR" auval.log; then
+            echo "::error::auval FAILED — NOCTIS Audio Unit could not be opened"
+            exit 1
+          fi
+          echo "auval PASSED"
+
+      - name: Create installer PKG and DMG (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install create-dmg
+          # Stage files mirroring the macOS filesystem layout
+          PKGROOT="$RUNNER_TEMP/pkgroot"
+          mkdir -p "$PKGROOT/Library/Audio/Plug-Ins/VST3"
+          mkdir -p "$PKGROOT/Library/Audio/Plug-Ins/Components"
+          find build/NOCTIS_artefacts -name "*.vst3" -exec cp -R {} "$PKGROOT/Library/Audio/Plug-Ins/VST3/" \;
+          find build/NOCTIS_artefacts -name "*.component" -exec cp -R {} "$PKGROOT/Library/Audio/Plug-Ins/Components/" \;
+          # Build the installer package (installs to / automatically)
+          pkgbuild --root "$PKGROOT" \
+            --identifier com.headroomaudio.noctis \
+            --version 1.0.0 \
+            --install-location / \
+            "$RUNNER_TEMP/NOCTIS-Installer.pkg"
+          # Wrap the installer in a DMG for distribution
+          DMGSTAGE="$RUNNER_TEMP/dmg-stage"
+          mkdir -p "$DMGSTAGE"
+          cp "$RUNNER_TEMP/NOCTIS-Installer.pkg" "$DMGSTAGE/"
+          create-dmg --volname "NOCTIS" "NOCTIS-v1.0.0-macOS.dmg" "$DMGSTAGE"
+
+      - name: Upload artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: build/NOCTIS_artefacts/
+
+      - name: Upload DMG (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: NOCTIS-macOS-DMG
+          path: NOCTIS-v1.0.0-macOS.dmg

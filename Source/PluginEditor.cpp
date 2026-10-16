@@ -619,7 +619,7 @@ NoctisEditor::NoctisEditor (NoctisProcessor& p)
         alert->addButton ("Save", 1, juce::KeyPress (juce::KeyPress::returnKey));
         alert->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
         // capture the editor safely; the alert deletes itself on exit
-        alert->enterModalState (true, juce::ModalCallbackFunction::create (
+        alert->enterModalState (true, juce::ModalCallbackFunction::forComponent (
             [safeThis = juce::Component::SafePointer<NoctisEditor> (this), alert] (int result)
             {
                 if (result == 1 && safeThis != nullptr)
@@ -628,8 +628,7 @@ NoctisEditor::NoctisEditor (NoctisProcessor& p)
                     if (name.isNotEmpty())
                         safeThis->saveUserPreset (name);
                 }
-                delete alert;
-            }), false);
+            }, alert), true);
     };
     addAndMakeVisible (saveButton);
 

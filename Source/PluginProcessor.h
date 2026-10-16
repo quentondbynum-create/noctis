@@ -67,6 +67,11 @@ public:
     static constexpr const char* kGlide      = "glide";      // ms
     static constexpr const char* kDrive      = "drive";      // %
     static constexpr const char* kChorus     = "chorus";     // %
+    static constexpr const char* kReverb     = "reverb";     // %
+    static constexpr const char* kDelayMix   = "delayMix";   // %
+    static constexpr const char* kDelayTime  = "delayTime";  // ms
+    static constexpr const char* kDelayFb    = "delayFb";    // %
+    static constexpr const char* kBitcrush   = "bitcrush";   // %
     static constexpr const char* kMasterGain = "masterGain"; // %
 
     // Preset handling

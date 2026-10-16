@@ -72,6 +72,11 @@ public:
         float glideSec = 0.0f;
         float drive = 0.0f;           // 0..1
         float chorus = 0.0f;          // 0..1
+        float reverb = 0.0f;          // 0..1 (mix)
+        float delayMix = 0.0f;        // 0..1
+        float delayTimeMs = 375.0f;   // delay time
+        float delayFeedback = 0.35f;  // 0..0.8
+        float bitcrush = 0.0f;        // 0..1 (0=off)
         float masterGain = 0.8f;      // 0..1
     };
 
@@ -251,6 +256,23 @@ private:
     std::array<float, kChorusDelayMax> chorusBufL {}, chorusBufR {};
     int chorusPos = 0;
     double chorusLfoPhase = 0.0;
+
+    // Reverb: Schroeder-Moorer (4 combs + 2 allpass), dark and lush
+    static constexpr int kReverbCombMax = 4096;
+    std::array<float, kReverbCombMax> revComb1 {}, revComb2 {}, revComb3 {}, revComb4 {};
+    static constexpr int kReverbApMax = 1024;
+    std::array<float, kReverbApMax> revAp1 {}, revAp2 {};
+    int revPos1 = 0, revPos2 = 0, revPos3 = 0, revPos4 = 0, revApPos1 = 0, revApPos2 = 0;
+
+    // Delay: ping-pong stereo
+    static constexpr int kDelayMax = 44100 * 2; // 2 seconds max
+    std::vector<float> delayBufL, delayBufR;
+    int delayPos = 0;
+    float delayLastL = 0.0f, delayLastR = 0.0f;
+
+    // Bitcrusher state
+    float crushHoldL = 0.0f, crushHoldR = 0.0f;
+    int crushCounter = 0;
 
     // Sustain pedal
     bool sustainDown = false;

@@ -633,9 +633,13 @@ NoctisEditor::NoctisEditor (NoctisProcessor& p)
     };
     addAndMakeVisible (saveButton);
 
+    diceButton.setName ("dice");
+    diceButton.onClick = [this] { onDicePressed(); };
+    addAndMakeVisible (diceButton);
+
     auto numPresets = [this]() -> int
     {
-        return (int) (factoryPresets.size() + userPresets.size());
+        return (int) (factoryPresets.size() + userPresets.size() + dicePresets.size());
     };
     prevButton.onClick = [this, numPresets]
     {
@@ -696,6 +700,9 @@ NoctisEditor::NoctisEditor (NoctisProcessor& p)
     addKnob (NoctisProcessor::kSubLevel,   "SUB LEVEL");
     addKnob (NoctisProcessor::kDrive,      "DRIVE");
     addKnob (NoctisProcessor::kChorus,     "CHORUS");
+    addKnob (NoctisProcessor::kReverb,     "REVERB");
+    addKnob (NoctisProcessor::kDelayMix,   "DELAY");
+    addKnob (NoctisProcessor::kBitcrush,   "CRUSH");
     addKnob (NoctisProcessor::kAmpA,       "ATTACK");
     addKnob (NoctisProcessor::kAmpD,       "DECAY");
     addKnob (NoctisProcessor::kAmpS,       "SUSTAIN");
@@ -747,6 +754,9 @@ const NoctisPreset* NoctisEditor::presetAtCombinedIndex (int idx) const
     const int uIdx = idx - (int) factoryPresets.size();
     if (uIdx < (int) userPresets.size())
         return &userPresets[(size_t) uIdx];
+    const int dIdx = uIdx - (int) userPresets.size();
+    if (dIdx < (int) dicePresets.size())
+        return &dicePresets[(size_t) dIdx];
     return nullptr;
 }
 
@@ -771,7 +781,18 @@ void NoctisEditor::refreshPresetBox()
             presetBox.addItem (item, (int) (factoryPresets.size() + i) + 1);
         }
     }
-    // explicit IDs: factory 1..N, user N+1.., so selection by ID is stable
+    if (! dicePresets.empty())
+    {
+        presetBox.addSeparator();
+        for (size_t i = 0; i < dicePresets.size(); ++i)
+        {
+            juce::String item = juce::String ("🎲 ") + dicePresets[i].name;
+            if (processor.isFavorite (dicePresets[i].name))
+                item = "♥ " + item;
+            presetBox.addItem (item, (int) (factoryPresets.size() + userPresets.size() + i) + 1);
+        }
+    }
+    // explicit IDs: factory 1..F, user F+1.., dice F+U+1.., so selection by ID is stable
     if (currentPresetIndex >= 0)
         presetBox.setSelectedId (currentPresetIndex + 1, juce::dontSendNotification);
 }
@@ -785,6 +806,21 @@ void NoctisEditor::loadPresetByIndex (int index)
     osc1WaveBox.setSelectedId (pr->osc1Wave + 1, juce::dontSendNotification);
     osc2WaveBox.setSelectedId (pr->osc2Wave + 1, juce::dontSendNotification);
     updateHeart();
+}
+
+void NoctisEditor::onDicePressed()
+{
+    // Current UI state feeds MUTATE mode; factory list feeds CROSSBREED.
+    const auto current = currentStateAsPreset ("Current");
+    auto dice = randomizer.generate (current, factoryPresets);
+
+    dicePresets.push_back (dice);
+    if (dicePresets.size() > 20)
+        dicePresets.erase (dicePresets.begin()); // cap history
+
+    currentPresetIndex = (int) (factoryPresets.size() + userPresets.size() + dicePresets.size()) - 1;
+    refreshPresetBox(); // rebuilds list (with dice section) + selects new index
+    loadPresetByIndex (currentPresetIndex); // applies preset, updates wave boxes + heart
 }
 
 void NoctisEditor::updateHeart()
@@ -1026,11 +1062,12 @@ void NoctisEditor::resized()
     const int mainBottom = getHeight() - keyboardH;
 
     // header: preset browser cluster (right side)
-    presetBox.setBounds (W - 452, 16, 220, 32);
-    prevButton.setBounds (W - 220, 16, 32, 32);
-    nextButton.setBounds (W - 184, 16, 32, 32);
-    heartButton.setBounds (W - 144, 16, 44, 32);
-    saveButton.setBounds (W - 92, 16, 68, 32);
+    presetBox.setBounds (W - 532, 16, 200, 32);
+    diceButton.setBounds (W - 324, 16, 84, 32);
+    prevButton.setBounds (W - 232, 16, 32, 32);
+    nextButton.setBounds (W - 196, 16, 32, 32);
+    heartButton.setBounds (W - 156, 16, 44, 32);
+    saveButton.setBounds (W - 104, 16, 76, 32);
 
     // hero XY pad (left)
     const int padX = 24, padY = 84, padSize = 380;

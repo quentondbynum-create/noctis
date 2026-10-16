@@ -117,6 +117,31 @@ juce::AudioProcessorValueTreeState::ParameterLayout NoctisProcessor::createParam
         juce::AudioParameterFloatAttributes().withLabel ("%")));
 
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        kReverb, "Reverb",
+        juce::NormalisableRange<float> (0.0f, 100.0f, 0.1f), 0.0f,
+        juce::AudioParameterFloatAttributes().withLabel ("%")));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        kDelayMix, "Delay Mix",
+        juce::NormalisableRange<float> (0.0f, 100.0f, 0.1f), 0.0f,
+        juce::AudioParameterFloatAttributes().withLabel ("%")));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        kDelayTime, "Delay Time",
+        juce::NormalisableRange<float> (50.0f, 1000.0f, 1.0f), 375.0f,
+        juce::AudioParameterFloatAttributes().withLabel ("ms")));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        kDelayFb, "Delay Feedback",
+        juce::NormalisableRange<float> (0.0f, 80.0f, 0.1f), 35.0f,
+        juce::AudioParameterFloatAttributes().withLabel ("%")));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        kBitcrush, "Bitcrush",
+        juce::NormalisableRange<float> (0.0f, 100.0f, 0.1f), 0.0f,
+        juce::AudioParameterFloatAttributes().withLabel ("%")));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
         kMasterGain, "Master Gain",
         juce::NormalisableRange<float> (0.0f, 100.0f, 0.1f), 80.0f,
         juce::AudioParameterFloatAttributes().withLabel ("%")));
@@ -186,6 +211,11 @@ void NoctisProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Midi
     p.glideSec   = getFloat (kGlide) / 1000.0f;
     p.drive      = getFloat (kDrive) / 100.0f;
     p.chorus     = getFloat (kChorus) / 100.0f;
+    p.reverb     = getFloat (kReverb) / 100.0f;
+    p.delayMix   = getFloat (kDelayMix) / 100.0f;
+    p.delayTimeMs = getFloat (kDelayTime);
+    p.delayFeedback = getFloat (kDelayFb) / 100.0f;
+    p.bitcrush   = getFloat (kBitcrush) / 100.0f;
     p.masterGain = getFloat (kMasterGain) / 100.0f;
 
     synth.setParams (p);
@@ -226,6 +256,11 @@ void NoctisProcessor::applyPreset (const NoctisPreset& preset)
     setFloat (kGlide, preset.glide);
     setFloat (kDrive, preset.drive);
     setFloat (kChorus, preset.chorus);
+    setFloat (kReverb, preset.reverb);
+    setFloat (kDelayMix, preset.delayMix);
+    setFloat (kDelayTime, preset.delayTime);
+    setFloat (kDelayFb, preset.delayFb);
+    setFloat (kBitcrush, preset.bitcrush);
     setFloat (kMasterGain, preset.masterGain);
 
     currentPresetName = preset.name;

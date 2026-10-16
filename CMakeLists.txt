@@ -1,1 +1,60 @@
-Y21ha2VfbWluaW11bV9yZXF1aXJlZChWRVJTSU9OIDMuMjIpCnByb2plY3QoTk9DVElTIFZFUlNJT04gMS4wLjApCgpzZXQoQ01BS0VfQ1hYX1NUQU5EQVJEIDE3KQpzZXQoQ01BS0VfQ1hYX1NUQU5EQVJEX1JFUVVJUkVEIE9OKQoKIyBQdWxsIEpVQ0UgYXV0b21hdGljYWxseSDigJQgZmlyc3QgYnVpbGQgZG93bmxvYWRzIGl0ICh+MTUwTUIpLCB0aGVuIGl0J3MgY2FjaGVkLgppbmNsdWRlKEZldGNoQ29udGVudCkKRmV0Y2hDb250ZW50X0RlY2xhcmUoCiAgICBKVUNFCiAgICBHSVRfUkVQT1NJVE9SWSBodHRwczovL2dpdGh1Yi5jb20vanVjZS1mcmFtZXdvcmsvSlVDRS5naXQKICAgIEdJVF9UQUcgNy4wLjEyCikKRmV0Y2hDb250ZW50X01ha2VBdmFpbGFibGUoSlVDRSkKCmp1Y2VfYWRkX3BsdWdpbihOT0NUSVMKICAgIENPTVBBTllfTkFNRSAiSGVhZHJvb20gQXVkaW8iCiAgICBQTFVHSU5fTkFNRSAiTk9DVElTIgogICAgREVTQ1JJUFRJT04gIk5PQ1RJUyDigJQgZGFyayB3YXZldGFibGUgc3ludGggZm9yIEhlYWRyb29tIEF1ZGlvLiA4MDhzLCBiZWxscywgcGx1Y2tzLCBwYWRzLCBrZXlzIGFuZCBsZWFkcyB3aXRoIGEgaGFyZHdhcmUgc291bC4iCiAgICBQTFVHSU5fTUFOVUZBQ1RVUkVSX0NPREUgSGRybQogICAgUExVR0lOX0NPREUgTm9jdAogICAgQlVORExFX0lEIGNvbS5oZWFkcm9vbWF1ZGlvLm5vY3RpcwogICAgRk9STUFUUyBBVSBWU1QzIFN0YW5kYWxvbmUKICAgIFBST0RVQ1RfTkFNRSAiTk9DVElTIgogICAgSVNfU1lOVEggVFJVRQogICAgTkVFRFNfTUlESV9JTlBVVCBUUlVFCiAgICBORUVEU19NSURJX09VVFBVVCBGQUxTRQopCgp0YXJnZXRfc291cmNlcyhOT0NUSVMgUFJJVkFURQogICAgU291cmNlL1dhdmV0YWJsZVN5bnRoLmgKICAgIFNvdXJjZS9XYXZldGFibGVTeW50aC5jcHAKICAgIFNvdXJjZS9QcmVzZXRzLmgKICAgIFNvdXJjZS9QbHVnaW5Qcm9jZXNzb3IuaAogICAgU291cmNlL1BsdWdpblByb2Nlc3Nvci5jcHAKICAgIFNvdXJjZS9QbHVnaW5FZGl0b3IuaAogICAgU291cmNlL1BsdWdpbkVkaXRvci5jcHAKKQoKdGFyZ2V0X2NvbXBpbGVfZGVmaW5pdGlvbnMoTk9DVElTIFBSSVZBVEUKICAgIEpVQ0VfV0VCX0JST1dTRVI9MAogICAgSlVDRV9VU0VfQ1VSTD0wCiAgICBKVUNFX1ZTVDNfQ0FOX1JFUExBQ0VfVlNUMj0wCikKCiMgSGVhZHJvb20gQXVkaW8gbG9nbyBlbWJlZGRlZCBhcyBiaW5hcnkgZGF0YSAoc21hbGwgYnJhbmQgbWFyayBpbiB0aGUgVUkpCmp1Y2VfYWRkX2JpbmFyeV9kYXRhKE5PQ1RJU0Fzc2V0cyBTT1VSQ0VTIFNvdXJjZS9Bc3NldHMvaGVhZHJvb20tbG9nby5wbmcpCgp0YXJnZXRfbGlua19saWJyYXJpZXMoTk9DVElTIFBSSVZBVEUKICAgIGp1Y2U6Omp1Y2VfYXVkaW9fdXRpbHMKICAgIGp1Y2U6Omp1Y2VfYXVkaW9fcHJvY2Vzc29ycwogICAganVjZTo6anVjZV9hdWRpb19mb3JtYXRzCiAgICBqdWNlOjpqdWNlX2RzcAogICAganVjZTo6anVjZV9ncmFwaGljcwogICAgTk9DVElTQXNzZXRzCiAgICBQVUJMSUMKICAgIGp1Y2U6Omp1Y2VfcmVjb21tZW5kZWRfY29uZmlnX2ZsYWdzCiAgICBqdWNlOjpqdWNlX3JlY29tbWVuZGVkX2x0b19mbGFncwopCg==
+cmake_minimum_required(VERSION 3.22)
+project(NOCTIS VERSION 1.0.0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Pull JUCE automatically — first build downloads it (~150MB), then it's cached.
+include(FetchContent)
+FetchContent_Declare(
+    JUCE
+    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+    GIT_TAG 7.0.12
+)
+FetchContent_MakeAvailable(JUCE)
+
+juce_add_plugin(NOCTIS
+    COMPANY_NAME "Headroom Audio"
+    PLUGIN_NAME "NOCTIS"
+    DESCRIPTION "NOCTIS — dark wavetable synth for Headroom Audio. 808s, bells, plucks, pads, keys and leads with a hardware soul."
+    PLUGIN_MANUFACTURER_CODE Hdrm
+    PLUGIN_CODE Noct
+    BUNDLE_ID com.headroomaudio.noctis
+    FORMATS AU VST3 Standalone
+    PRODUCT_NAME "NOCTIS"
+    IS_SYNTH TRUE
+    NEEDS_MIDI_INPUT TRUE
+    NEEDS_MIDI_OUTPUT FALSE
+)
+
+target_sources(NOCTIS PRIVATE
+    Source/WavetableSynth.h
+    Source/WavetableSynth.cpp
+    Source/Presets.h
+    Source/PresetRandomizer.h
+    Source/PluginProcessor.h
+    Source/PluginProcessor.cpp
+    Source/PluginEditor.h
+    Source/PluginEditor.cpp
+)
+
+target_compile_definitions(NOCTIS PRIVATE
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0
+    JUCE_VST3_CAN_REPLACE_VST2=0
+)
+
+# Headroom Audio logo embedded as binary data (small brand mark in the UI)
+juce_add_binary_data(NOCTISAssets SOURCES Source/Assets/headroom-logo.png)
+
+target_link_libraries(NOCTIS PRIVATE
+    juce::juce_audio_utils
+    juce::juce_audio_processors
+    juce::juce_audio_formats
+    juce::juce_dsp
+    juce::juce_graphics
+    NOCTISAssets
+    PUBLIC
+    juce::juce_recommended_config_flags
+    juce::juce_recommended_lto_flags
+)

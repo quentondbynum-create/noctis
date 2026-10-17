@@ -43,7 +43,8 @@ jobs:
           # Force macOS to rescan Audio Units (fresh runners have a stale AU cache)
           killall -9 AudioComponentRegistrar 2>/dev/null || true
           sleep 3
-          auval -v aufx Noct Hdrm 2>&1 | tee auval.log
+          # NOCTIS is a synth (IS_SYNTH=TRUE) so its AU type is aumu, not aufx
+          auval -v aumu Noct Hdrm 2>&1 | tee auval.log
           if grep -q "couldn't be opened\|FATAL ERROR" auval.log; then
             echo "::error::auval FAILED — NOCTIS Audio Unit could not be opened"
             exit 1

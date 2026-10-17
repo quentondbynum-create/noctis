@@ -618,17 +618,24 @@ NoctisEditor::NoctisEditor (NoctisProcessor& p)
         alert->addTextEditor ("name", "My Preset", "Preset name:");
         alert->addButton ("Save", 1, juce::KeyPress (juce::KeyPress::returnKey));
         alert->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
-        // capture the editor safely; the alert deletes itself on exit
-        alert->enterModalState (true, juce::ModalCallbackFunction::forComponent (
-            [safeThis = juce::Component::SafePointer<NoctisEditor> (this), alert] (int result)
+        // Custom modal callback (JUCE 7.0.12's ModalCallbackFunction doesn't take lambdas)
+        struct SaveCallback : public juce::ModalComponentManager::Callback
+        {
+            juce::Component::SafePointer<NoctisEditor> editor;
+            juce::AlertWindow* alertWindow;
+            SaveCallback (NoctisEditor* e, juce::AlertWindow* a) : editor (e), alertWindow (a) {}
+            void modalStateFinished (int result) override
             {
-                if (result == 1 && safeThis != nullptr)
-                {
-                    const juce::String name = alert->getTextEditorContents ("name").trim();
-                    if (name.isNotEmpty())
-                        safeThis->saveUserPreset (name);
-                }
-            }, alert), true);
+                if (result == 1)
+                    if (auto* ed = editor.getComponent())
+                    {
+                        const juce::String name = alertWindow->getTextEditorContents ("name").trim();
+                        if (name.isNotEmpty())
+                            ed->saveUserPreset (name);
+                    }
+            }
+        };
+        alert->enterModalState (true, new SaveCallback (this, alert), true);
     };
     addAndMakeVisible (saveButton);
 
